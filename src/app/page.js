@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
@@ -80,6 +80,29 @@ export default function Home() {
   const [snackbar, setSnackbar] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState(false);
+  const inputRef = useRef(null);
+
+  // Ensure the text input reliably receives focus (fixes intermittent inability to type)
+  useEffect(() => {
+    // small delay + rAF helps avoid Next.js hydration/focus race
+    const id = setTimeout(() => {
+      requestAnimationFrame(() => {
+        try {
+          inputRef.current?.focus();
+        } catch (e) {
+          // ignore
+        }
+      });
+    }, 50);
+    return () => clearTimeout(id);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      // refocus when the popup opens
+      requestAnimationFrame(() => inputRef.current?.focus());
+    }
+  }, [open]);
 
   function handleEnterSelect(e) {
     if (e.key !== "Enter") return;
@@ -129,7 +152,7 @@ export default function Home() {
               if (reason === 'input') setOpen(Boolean(v && v.length));
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Search Scheme Name" variant="outlined" fullWidth autoFocus InputLabelProps={{ style: { color: '#b0b8c1' } }} onKeyDown={handleEnterSelect} />
+              <TextField {...params} label="Search Scheme Name" variant="outlined" fullWidth InputLabelProps={{ style: { color: '#b0b8c1' } }} onKeyDown={handleEnterSelect} inputRef={inputRef} />
             )}
             onChange={(_, value) => { setSelected(value); setInputValue(value ? value.schemeName : ""); setOpen(false); }}
             isOptionEqualToValue={(opt, val) => opt.schemeId === val.schemeId}
