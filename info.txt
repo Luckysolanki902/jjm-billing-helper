@@ -1,0 +1,75 @@
+SL NO.	JE NAME	Block	Scheme ID	SCHEME NAME	LOA Number
+1	Chandra mohan 	Baitalpur	20101936	Adhrangi	1016/ED/Phase-3/2023-24/XII/43
+2	Chandra mohan 	Deoria Sadar	20057882	Ahilawar Buzurg	1016/ED/Phase-3/2023-24/XII/7
+3	Chandra mohan 	Tarkulwa	20033338	Ahirauli	1016/ED/Phase-3/2023-24/XII/28
+4	Chandra mohan 	Deoria Sadar	20033299	Akhanpura	1027/ED/Phase-3/2023-24/XIV/61
+5	Richa Mishra	Gauri Bazar	8362781	Aktahia urf Matiyari	1027/ED/Phase-3/2023-24/XIV/55
+6	Pawan chutuvedi	Desai Deoria	20042870	Amari Jhanga  	1016/ED/Phase-3/2023-24/XII/1
+7	Chandra mohan 	Baitalpur	8362297	Bahoorpur	1016/ED/Phase-3/2023-24/XII/22
+8	Mohd. Aftab 	Rampur Karkhana	20033316	Baikunthpur	1016/ED/Phase-3/2023-24/XII/17
+9	Chandra mohan 	Tarkulwa	20000702	Banraha Narharpatti	1027/ED/Phase-3/2023-24/XIV/52
+10	Richa Mishra	Gauri Bazar	20058015	Bansahia	1016/ED/Phase-3/2023-24/XII/24
+11	Mohd. Aftab 	Rampur Karkhana	20043133	Baraipur Mangal Rao	1016/ED/Phase-3/2023-24/XII/34
+12	Mohd. Aftab 	Rampur Karkhana	20058067	Barari	1016/ED/Phase-3/2023-24/XII/29
+13	Chandra mohan 	Deoria Sadar	20099683	Baruadih & Kusmauni	1054/ED/Phase-3/2023-24/XIV/71
+14	Chandra mohan 	Tarkulwa	20000716	Barwa Semra	1016/ED/Phase-3/2023-24/XII/9
+15	Chandra mohan 	Tarkulwa	20043044	Basantpur	1054/ED/Phase-3/2023-24/XVI/66
+16	Chandra mohan 	Tarkulwa	20048291	Belhi	1016/ED/Phase-3/2023-24/XII/3
+17	Mohd. Aftab 	Rampur Karkhana	20101930	Belwa	1016/ED/Phase-3/2023-24/XII/42
+18	Chandra mohan 	Baitalpur	20033284	Bhagua	1016/ED/Phase-3/2023-24/XII/11
+19	Chandra mohan 	Deoria Sadar	20000711	Bhalua	1027/ED/Phase-3/2023-24/XIV/53
+20	Chandra mohan 	Tarkulwa	20099677	Bharauta	1016/ED/Phase-3/2023-24/XII/40
+21	Richa Mishra	Gauri Bazar	20043211	Bharia	1016/ED/Phase-3/2023-24/XII/35
+22	Pawan chutuvedi	Desai Deoria	20033621	 Bharthpatti	1027/ED/Phase-3/2023-24/XIV/60
+23	Chandra mohan 	Baitalpur	20033293	Bhisva	1016/ED/Phase-3/2023-24/XII/31
+24	Chandra mohan 	Baitalpur	20057944	Bishunpur	1054/ED/Phase-3/2023-24/XVI/70
+25	Chandra mohan 	Tarkulwa	20099684	Biswa	1016/ED/Phase-3/2023-24/XII/15
+26	Chandra mohan 	Baitalpur	20000701	Budi Pakar	1016/ED/Phase-3/2023-24/XII/8
+27	Chandra mohan 	Deoria Sadar	20042895	Chakbandi urf Ghatila Gazi	1027/ED/Phase-3/2023-24/XIV/56
+28	Mohd. Aftab 	Rampur Karkhana	20043179	Chakrawa Dhus	1016/ED/Phase-3/2023-24/XII/19
+29	Chandra mohan 	Tarkulwa	20042915	Gopalpur	1016/ED/Phase-3/2023-24/XII/38
+30	Pawan chutuvedi	Pathardeva	20057919	Harimahuwawa	1027/ED/Phase-3/2023-24/XIV/51
+31	Chandra mohan 	Deoria Sadar	20057933	Hata Khas	1016/ED/Phase-3/2023-24/XII/27
+32	Chandra mohan 	Baitalpur	20101929	Jaitpura	1016/ED/Phase-3/2023-24/XII/45
+33	Chandra mohan 	Tarkulwa	20099678	Jaluwa	1016/ED/Phase-3/2023-24/XII/39
+34	Richa Mishra	Gauri Bazar	20057984	Jangal Pipra	1016/ED/Phase-3/2023-24/XII/21
+35	Richa Mishra	Gauri Bazar	20101549	Jogia	1016/ED/Phase-3/2023-24/XII/36
+36	Pawan chutuvedi	Desai Deoria	20033569	Jungle Belwa 	1016/ED/Phase-3/2023-24/XII/33
+37	Richa Mishra	Gauri Bazar	20000690	Jungle Kitasen	1016/ED/Phase-3/2023-24/XII/4
+38	Mohd. Aftab 	Rampur Karkhana	20033320	Karmaha	1027/ED/Phase-3/2023-24/XIV/63
+39	Mohd. Aftab 	Rampur Karkhana	20000685	Khajuriya	1016/ED/Phase-3/2023-24/XII/5
+40	Chandra mohan 	Tarkulwa	20043005	Konhawalia Baburai 	1016/ED/Phase-3/2023-24/XII/12
+41	Chandra mohan 	Baitalpur	20057952	Lakhan Chand	1027/ED/Phase-3/2023-24/XIV/64
+42	Chandra mohan 	Tarkulwa	20101931	Laxmipur	1068/ED/Phase-3/2023-24/XIX/74
+43	Mohd. Aftab 	Rampur Karkhana	20033628	Madarapali	1054/ED/Phase-3/2023-24/XIV/67
+44	Chandra mohan 	Deoria Sadar	20099681	Mahrajpur	1027/ED/Phase-3/2023-24/XIV/65
+45	Chandra mohan 	Deoria Sadar	20042885	Mahui	1027/ED/Phase-3/2023-24/XIV/62
+46	Pawan chutuvedi	Pathardeva	20033626	Mahuwawa Buzurg	1016/ED/Phase-3/2023-24/XII/20
+47	Mohd. Aftab 	Rampur Karkhana	20101938	Manjhariya urf jolahpurwa	1016/ED/Phase-3/2023-24/XII/41
+48	Chandra mohan 	Tarkulwa	20000695	Mathura Chhapar	1016/ED/Phase-3/2023-24/XII/6
+49	Chandra mohan 	Baitalpur	20058093	Mehra	1027/ED/Phase-3/2023-24/XIV/73
+50	Pawan chutuvedi	Pathardeva	20033624	Mundera Jagdish	1016/ED/Phase-3/2023-24/XII/13
+51	Richa Mishra	Gauri Bazar	20057966	Narainpur Tiwari	1016/ED/Phase-3/2023-24/XII/23
+52	Mohd. Aftab 	Rampur Karkhana	20057900	Nonia Chappar	1054/ED/Phase-3/2023-24/XIV/68
+53	Pawan chutuvedi	Pathardeva	20033308	Nonia Patti	1016/ED/Phase-3/2023-24/XII/10
+54	Chandra mohan 	Tarkulwa	20000708	Pachrokhiya	1027/ED/Phase-3/2023-24/XIV/54
+55	Chandra mohan 	Tarkulwa	20033326	Paharpur	1016/ED/Phase-3/2023-24/XII/18
+56	Pawan chutuvedi	Pathardeva	20058004	Pakri	1027/ED/Phase-3/2023-24/XIV/58
+57	Pawan chutuvedi	Pathardeva	20044027	Pipradaud	1016/ED/Phase-3/2023-24/XII/37
+58	Chandra mohan 	Tarkulwa	20033127	Piprahiya	1016/ED/Phase-3/2023-24/XII/32
+59	Chandra mohan 	Baitalpur	8359297	Rampur Gunariya 	1027/ED/Phase-3/2023-24/XIV/48
+60	Chandra mohan 	Tarkulwa	20101932	Rampur Jagdishpur Urf Brindaba	1016/ED/Phase-3/2023-24/XII/47
+61	Pawan chutuvedi	Pathardeva	20101933	Sakatui	1016/ED/Phase-3/2023-24/XII/44
+62	Richa Mishra	Gauri Bazar	8359992	Sauna Parsuram	1027/ED/Phase-3/2023-24/XIV/49
+63	Pawan chutuvedi	Desai Deoria	20043225	Semari	1016/ED/Phase-3/2023-24/XII/25
+64	Pawan chutuvedi	Pathardeva	8359398	Semri	1016/ED/Phase-3/2023-24/XII/2
+65	Pawan chutuvedi	Pathardeva	20033313	Shahpur Shukla	1016/ED/Phase-3/2023-24/XII/26
+66	Mohd. Aftab 	Rampur Karkhana	20033323	Shamipatti	1016/ED/Phase-3/2023-24/XII/14
+67	Pawan chutuvedi	Desai Deoria	20033570	Shampur	1016/ED/Phase-3/2023-24/XII/16
+68	Chandra mohan 	Tarkulwa	20026562	Sirsiapatti Husen	1016/ED/Phase-3/2023-24/XII/30
+69	Pawan chutuvedi	Pathardeva	20101934	Sitapatti	1016/ED/Phase-3/2023-24/XII/46
+70	Chandra mohan 	Baitalpur	20033567	Tenduhi	1027/ED/Phase-3/2023-24/XIV/57
+71	Chandra mohan 	Baitalpur	20058113	Tiwai	1054/ED/Phase-3/2023-24/XIV/69
+72	Chandra mohan 	Baitalpur	8360034	Udhopur	1027/ED/Phase-3/2023-24/XIV/50
+73	Chandra mohan 	Deoria Sadar	20099679	Vishnupura	1027/ED/Phase-3/2023-24/XIV/72
+74	Chandra mohan 	Baitalpur	20033568	Vishunpur Murar	1027/ED/Phase-3/2023-24/XIV/59
