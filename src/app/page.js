@@ -104,6 +104,19 @@ export default function Home() {
     }
   }, [open]);
 
+  const dateMapping = {
+    "1016": "26.09.2023",
+    "1027": "10.10.2023",
+    "1054": "15.01.2024",
+    "1068": "01.03.2024"
+  };
+
+  function getDateFromLoa(loa) {
+    if (!loa) return "";
+    const prefix = loa.toString().substring(0, 4);
+    return dateMapping[prefix] || "";
+  }
+
   function handleEnterSelect(e) {
     if (e.key !== "Enter") return;
     // If already selected, let Autocomplete handle it.
@@ -162,10 +175,11 @@ export default function Home() {
           {selected && (
             <Box mt={2}>
               <InfoRow label="Scheme Name" value={selected.schemeName} setSnackbar={setSnackbar} />
+              <InfoRow label="Block" value={selected.block} setSnackbar={setSnackbar} />
               <InfoRow label="Scheme ID" value={selected.schemeId} setSnackbar={setSnackbar} />
               <InfoRow label="LOA Number" value={selected.loa} setSnackbar={setSnackbar} />
-              <InfoRow label="Block" value={selected.block} setSnackbar={setSnackbar} />
               <InfoRow label="JE Name" value={selected.je} setSnackbar={setSnackbar} />
+              <InfoRow label="Date" value={getDateFromLoa(selected.loa)} setSnackbar={setSnackbar} />
             </Box>
           )}
         </Paper>
