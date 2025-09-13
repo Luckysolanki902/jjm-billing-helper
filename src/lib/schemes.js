@@ -22,7 +22,7 @@ const schemes = [
   { id: 19, je: "Chandra mohan", block: "Deoria Sadar", schemeId: "20000711", schemeName: "Bhalua", loa: "1027/ED/Phase-3/2023-24/XIV/53" },
   { id: 20, je: "Chandra mohan", block: "Tarkulwa", schemeId: "20099677", schemeName: "Bharauta", loa: "1016/ED/Phase-3/2023-24/XII/40" },
   { id: 21, je: "Richa Mishra", block: "Gauri Bazar", schemeId: "20043211", schemeName: "Bharia", loa: "1016/ED/Phase-3/2023-24/XII/35" },
-  { id: 22, je: "Pawan chutuvedi", block: "Desai Deoria", schemeId: "20033621", schemeName: " Bharthpatti", loa: "1027/ED/Phase-3/2023-24/XIV/60" },
+  { id: 22, je: "Pawan chutuvedi", block: "Desai Deoria", schemeId: "20033621", schemeName: "Bharthpatti", loa: "1027/ED/Phase-3/2023-24/XIV/60" },
   { id: 23, je: "Chandra mohan", block: "Baitalpur", schemeId: "20033293", schemeName: "Bhisva", loa: "1016/ED/Phase-3/2023-24/XII/31" },
   { id: 24, je: "Chandra mohan", block: "Baitalpur", schemeId: "20057944", schemeName: "Bishunpur", loa: "1054/ED/Phase-3/2023-24/XVI/70" },
   { id: 25, je: "Chandra mohan", block: "Tarkulwa", schemeId: "20099684", schemeName: "Biswa", loa: "1016/ED/Phase-3/2023-24/XII/15" },
