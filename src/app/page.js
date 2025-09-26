@@ -8,6 +8,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import CssBaseline from "@mui/material/CssBaseline";
 import Chip from "@mui/material/Chip";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -91,16 +92,34 @@ export default function Home() {
   const [selected, setSelected] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
   const [lastCopiedKey, setLastCopiedKey] = useState(null);
   const [rowFocusIndex, setRowFocusIndex] = useState(0); // for navigating rows when unfocused
   const inputRef = useRef(null);
   const suggestionsRef = useRef(null);
+  const inputWrapperRef = useRef(null);
+  const [inputHeight, setInputHeight] = useState(0);
 
   // autofocus on mount
   useEffect(() => {
     const id = setTimeout(() => inputRef.current?.focus(), 80);
     return () => clearTimeout(id);
   }, []);
+
+  // Measure input height to anchor dropdown precisely (avoids mid-overlay)
+  useEffect(() => {
+    function measure() {
+      if (inputWrapperRef.current) {
+        const h = inputWrapperRef.current.getBoundingClientRect().height;
+        if (h && h !== inputHeight) setInputHeight(h);
+      }
+    }
+    measure();
+    window.addEventListener('resize', measure);
+    // also measure right after paint when value changes (label shrink affects height)
+    const id = requestAnimationFrame(measure);
+    return () => { window.removeEventListener('resize', measure); cancelAnimationFrame(id); };
+  }, [inputValue, inputFocused, inputHeight]);
 
   // Derived filtered suggestions
   const filtered = React.useMemo(() => (
@@ -110,8 +129,9 @@ export default function Home() {
   ), [inputValue]);
 
   useEffect(() => {
-    setShowSuggestions(Boolean(filtered.length && document.activeElement === inputRef.current));
-  }, [filtered.length]);
+    // Only show when focused and there are matches
+    setShowSuggestions(inputFocused && Boolean(filtered.length));
+  }, [filtered.length, inputFocused]);
 
   // Helper to select first suggestion
   const selectFirst = useCallback(() => {
@@ -131,6 +151,9 @@ export default function Home() {
       // allow quick selection preview? Cycle suggestions visually
       e.preventDefault();
       // optional: could implement cycling; keeping simple focusing first
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      inputRef.current?.blur();
     }
   }
 
@@ -200,6 +223,20 @@ export default function Home() {
     return () => window.removeEventListener('keydown', onKey);
   }, [selectFirst, selected, rowFocusIndex, handleCopyByKey]);
 
+  // Click outside to close suggestions
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (!showSuggestions) return;
+      const inputEl = inputRef.current;
+      const listEl = suggestionsRef.current;
+      if (inputEl && inputEl.contains(e.target)) return;
+      if (listEl && listEl.contains(e.target)) return;
+      setShowSuggestions(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSuggestions]);
+
   // (date mapping helper is declared at module scope)
 
   // Row data config
@@ -232,58 +269,77 @@ export default function Home() {
           <Typography variant="h5" fontWeight={800} mb={2} align="center" color="primary.main" letterSpacing={2}>
             <span style={{fontWeight:900, fontSize:32, color:'#90caf9'}}>Scheme Finder</span>
           </Typography>
-          <TextField
-            label="Search Scheme Name"
-            variant="outlined"
-            fullWidth
-            value={inputValue}
-            inputRef={inputRef}
-            onFocus={() => setShowSuggestions(Boolean(filtered.length))}
-            onChange={e => { setInputValue(e.target.value); setSelected(null); }}
-            onKeyDown={handleInputKeyDown}
-            InputLabelProps={{ style: { color: '#b0b8c1' } }}
-            sx={{ mb: 1.5 }}
-          />
-          <AnimatePresence>
-            {showSuggestions && (
-              <motion.div
-                ref={suggestionsRef}
-                initial={{ opacity:0, y:-4 }}
-                animate={{ opacity:1, y:0 }}
-                exit={{ opacity:0, y:-4 }}
-                style={{ position:'absolute', top: 122, left: 24, right: 24, zIndex: 10 }}
-              >
-                <Paper sx={{ maxHeight: 260, overflowY:'auto', background:'#1f2430', border:'1px solid #2d3444' }}>
-                  {filtered.slice(0, 30).map((s, idx) => (
-                    <Box
-                      key={s.schemeId}
-                      onMouseDown={e => { e.preventDefault(); }}
-                      onClick={() => { setSelected(s); setShowSuggestions(false); inputRef.current?.blur(); }}
-                      sx={{
-                        px: 1.4, py: 1,
-                        cursor:'pointer',
-                        fontSize:14,
-                        display:'flex',
-                        alignItems:'center',
-                        gap:1,
-                        borderBottom: idx === filtered.length-1 ? 'none':'1px solid #2d3444',
-                        background: idx===0 ? 'linear-gradient(90deg,#2a3141,#232837)' : 'transparent',
-                        '&:hover': { background:'#2a3141' }
-                      }}
+          <Box sx={{ position:'relative', mb: 1.5 }}>
+            <Box ref={inputWrapperRef} sx={{ position:'relative' }}>
+            <TextField
+              label="Search Scheme Name"
+              variant="outlined"
+              fullWidth
+              value={inputValue}
+              inputRef={inputRef}
+              onFocus={() => { setInputFocused(true); setShowSuggestions(Boolean(filtered.length)); }}
+              onBlur={() => { setInputFocused(false); /* outside click handler will close */ }}
+              onChange={e => { setInputValue(e.target.value); setSelected(null); setShowSuggestions(Boolean(e.target.value)); }}
+              onKeyDown={handleInputKeyDown}
+              InputLabelProps={{ style: { color: '#b0b8c1' } }}
+              InputProps={{
+                endAdornment: (
+                  (inputValue || selected) && (
+                    <IconButton
+                      size="small"
+                      aria-label="Clear"
+                      onMouseDown={(e) => { e.preventDefault(); }}
+                      onClick={() => { setInputValue(""); setSelected(null); setShowSuggestions(false); requestAnimationFrame(()=> inputRef.current?.focus()); }}
+                      sx={{ color:'#90caf9', mr:0.5 }}
                     >
-                      <Typography variant="body2" sx={{ flex:1 }}>{s.schemeName}</Typography>
-                      <Chip size="small" label={s.block} sx={{ bgcolor:'#2f3a4e', color:'#90caf9' }} />
-                    </Box>
-                  ))}
-                  {!filtered.length && (
-                    <Box px={1.5} py={1}>
-                      <Typography variant="caption" sx={{ color:'#647082' }}>No matches</Typography>
-                    </Box>
-                  )}
-                </Paper>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                      <CloseRoundedIcon fontSize="small" />
+                    </IconButton>
+                  )
+                )
+              }}
+            />
+            </Box>
+            <AnimatePresence>
+              {showSuggestions && inputHeight > 0 && (
+                <motion.div
+                  ref={suggestionsRef}
+                  initial={{ opacity:0, y:-4 }}
+                  animate={{ opacity:1, y:0 }}
+                  exit={{ opacity:0, y:-4 }}
+                  style={{ position:'absolute', left:0, right:0, top: inputHeight + 6, zIndex:15 }}
+                >
+                  <Paper sx={{ maxHeight: 320, overflowY:'auto', background:'#1f2430', border:'1px solid #2d3444', borderRadius: 2, boxShadow: '0 10px 28px -4px rgba(0,0,0,0.55)' }}>
+                    {filtered.slice(0, 50).map((s, idx) => (
+                      <Box
+                        key={s.schemeId}
+                        onMouseDown={e => { e.preventDefault(); }}
+                        onClick={() => { setSelected(s); setShowSuggestions(false); inputRef.current?.blur(); }}
+                        sx={{
+                          px: 1.4, py: 1,
+                          cursor:'pointer',
+                          fontSize:14,
+                          display:'flex',
+                          alignItems:'center',
+                          gap:1,
+                          borderBottom: idx === filtered.length-1 ? 'none':'1px solid #2d3444',
+                          background: idx===0 ? 'linear-gradient(90deg,#2a3141,#232837)' : 'transparent',
+                          '&:hover': { background:'#2a3141' }
+                        }}
+                      >
+                        <Typography variant="body2" sx={{ flex:1 }}>{s.schemeName}</Typography>
+                        <Chip size="small" label={s.block} sx={{ bgcolor:'#2f3a4e', color:'#90caf9' }} />
+                      </Box>
+                    ))}
+                    {!filtered.length && (
+                      <Box px={1.5} py={1}>
+                        <Typography variant="caption" sx={{ color:'#647082' }}>No matches</Typography>
+                      </Box>
+                    )}
+                  </Paper>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Box>
 
           {selected && (
             <Box mt={2.5}>
