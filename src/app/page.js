@@ -1,25 +1,37 @@
 
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Box from "@mui/material/Box";
-import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import Snackbar from "@mui/material/Snackbar";
 import CssBaseline from "@mui/material/CssBaseline";
+import Chip from "@mui/material/Chip";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { motion, AnimatePresence } from "framer-motion";
 import schemes from "@/lib/schemes";
+// Static date mapping + helper (outside component to avoid hook dependency issues)
+const DATE_MAPPING = {
+  "1016": "26.09.2023",
+  "1027": "10.10.2023",
+  "1054": "15.01.2024",
+  "1068": "01.03.2024"
+};
+
+function getDateFromLoa(loa) {
+  if (!loa) return "";
+  const prefix = loa.toString().substring(0, 4);
+  return DATE_MAPPING[prefix] || "";
+}
 
 
 
-function copyToClipboard(text, setSnackbar) {
-  if (navigator && navigator.clipboard) {
-    navigator.clipboard.writeText(text);
-    setSnackbar(true);
+function copyToClipboard(text) {
+  if (navigator && navigator.clipboard && typeof text !== 'undefined') {
+    navigator.clipboard.writeText(String(text));
   }
 }
 
@@ -77,61 +89,130 @@ const darkTheme = createTheme({
 
 export default function Home() {
   const [selected, setSelected] = useState(null);
-  const [snackbar, setSnackbar] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [open, setOpen] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [lastCopiedKey, setLastCopiedKey] = useState(null);
+  const [rowFocusIndex, setRowFocusIndex] = useState(0); // for navigating rows when unfocused
   const inputRef = useRef(null);
+  const suggestionsRef = useRef(null);
 
-  // Ensure the text input reliably receives focus (fixes intermittent inability to type)
+  // autofocus on mount
   useEffect(() => {
-    // small delay + rAF helps avoid Next.js hydration/focus race
-    const id = setTimeout(() => {
-      requestAnimationFrame(() => {
-        try {
-          inputRef.current?.focus();
-        } catch (e) {
-          // ignore
-        }
-      });
-    }, 50);
+    const id = setTimeout(() => inputRef.current?.focus(), 80);
     return () => clearTimeout(id);
   }, []);
 
+  // Derived filtered suggestions
+  const filtered = React.useMemo(() => (
+    inputValue
+      ? schemes.filter(s => s.schemeName.toLowerCase().includes(inputValue.toLowerCase()))
+      : []
+  ), [inputValue]);
+
   useEffect(() => {
-    if (open) {
-      // refocus when the popup opens
-      requestAnimationFrame(() => inputRef.current?.focus());
+    setShowSuggestions(Boolean(filtered.length && document.activeElement === inputRef.current));
+  }, [filtered.length]);
+
+  // Helper to select first suggestion
+  const selectFirst = useCallback(() => {
+    if (filtered.length) {
+      setSelected(filtered[0]);
+      setShowSuggestions(false);
+      inputRef.current?.blur();
     }
-  }, [open]);
+  }, [filtered]);
 
-  const dateMapping = {
-    "1016": "26.09.2023",
-    "1027": "10.10.2023",
-    "1054": "15.01.2024",
-    "1068": "01.03.2024"
-  };
-
-  function getDateFromLoa(loa) {
-    if (!loa) return "";
-    const prefix = loa.toString().substring(0, 4);
-    return dateMapping[prefix] || "";
-  }
-
-  function handleEnterSelect(e) {
-    if (e.key !== "Enter") return;
-    // If already selected, let Autocomplete handle it.
-    if (selected) return;
-    const q = inputValue.trim().toLowerCase();
-    if (!q) return;
-    // Find first suggestion that includes the input (case-insensitive)
-    const first = schemes.find((s) => s.schemeName.toLowerCase().includes(q));
-    if (first) {
+  // Keyboard inside input
+  function handleInputKeyDown(e) {
+    if (e.key === 'Enter') {
       e.preventDefault();
-  setSelected(first);
-  // close suggestions so dialog is not shown after pressing Enter
-  setOpen(false);
+      selectFirst();
+    } else if (e.key === 'ArrowDown') {
+      // allow quick selection preview? Cycle suggestions visually
+      e.preventDefault();
+      // optional: could implement cycling; keeping simple focusing first
     }
   }
+
+  // Global shortcuts when NOT focusing input
+  const handleCopyByKey = useCallback((key) => {
+    if (!selected) return;
+    const value = key === 'date' ? getDateFromLoa(selected.loa) : selected[key];
+    copyToClipboard(value);
+    setLastCopiedKey(key);
+    setTimeout(() => setLastCopiedKey(null), 900);
+  }, [selected]);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (document.activeElement === inputRef.current) return; // ignore shortcuts while typing
+      const k = e.key.toLowerCase();
+      // Arrow navigation among rows (only if selection exists)
+      const rowKeys = ['schemeName','block','schemeId','loa','date','je'];
+      if (['arrowdown','arrowup'].includes(k) && selected) {
+        e.preventDefault();
+        setRowFocusIndex(i => {
+          const max = rowKeys.length - 1;
+          if (k === 'arrowdown') return i >= max ? 0 : i + 1;
+          return i <= 0 ? max : i - 1;
+        });
+        return;
+      }
+      if (k === 'enter') {
+        e.preventDefault();
+        if (!selected) {
+          // if no selection yet but we have suggestions from existing text value
+          selectFirst();
+        } else {
+          // copy currently focused row
+          const focusKey = rowKeys[rowFocusIndex];
+            handleCopyByKey(focusKey);
+        }
+        return;
+      }
+      if (k === 'f') {
+        e.preventDefault();
+        inputRef.current?.focus();
+        return;
+      }
+      if (k === 'c') {
+        e.preventDefault();
+        setSelected(null);
+        setInputValue("");
+        requestAnimationFrame(() => inputRef.current?.focus());
+        return;
+      }
+      if (!selected) return; // below shortcuts need data
+      const map = {
+        's': 'schemeName',
+        'b': 'block',
+        'i': 'schemeId',
+        'l': 'loa',
+        'd': 'date',
+        'j': 'je'
+      };
+      if (map[k]) {
+        e.preventDefault();
+        handleCopyByKey(map[k]);
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selectFirst, selected, rowFocusIndex, handleCopyByKey]);
+
+  // (date mapping helper is declared at module scope)
+
+  // Row data config
+  const rows = selected ? [
+    { label: 'Scheme Name', key: 'schemeName', shortcut: 'S', value: selected.schemeName },
+    { label: 'Block', key: 'block', shortcut: 'B', value: selected.block },
+    { label: 'Scheme ID', key: 'schemeId', shortcut: 'I', value: selected.schemeId },
+    { label: 'LOA Number', key: 'loa', shortcut: 'L', value: selected.loa },
+    { label: 'C.A. Date', key: 'date', shortcut: 'D', value: getDateFromLoa(selected.loa) },
+    { label: 'JE Name', key: 'je', shortcut: 'J', value: selected.je },
+  ] : [];
+
+  useEffect(() => { if (rows.length) setRowFocusIndex(0); }, [rows.length]);
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -147,85 +228,124 @@ export default function Home() {
           p: 2,
         }}
       >
-        <Paper elevation={6} sx={{ p: { xs: 2, sm: 4 }, maxWidth: 540, width: "100%", borderRadius: 4, boxShadow: 8, background: "#232837", border: "1px solid #232837" }}>
+        <Paper component="form" onSubmit={e => { e.preventDefault(); selectFirst(); }} elevation={6} sx={{ p: { xs: 2, sm: 4 }, maxWidth: 600, width: "100%", borderRadius: 4, boxShadow: 8, background: "#232837", border: "1px solid #2d3444", position:'relative' }}>
           <Typography variant="h5" fontWeight={800} mb={2} align="center" color="primary.main" letterSpacing={2}>
             <span style={{fontWeight:900, fontSize:32, color:'#90caf9'}}>Scheme Finder</span>
           </Typography>
-          <Autocomplete
-            open={open}
-            onOpen={() => setOpen(true)}
-            onClose={() => setOpen(false)}
-            openOnFocus={false}
-            options={schemes}
-            getOptionLabel={(option) => option.schemeName || ""}
-            inputValue={inputValue}
-            onInputChange={(_, v, reason) => {
-              setInputValue(v);
-              // open popup only when user types (not when programmatically set)
-              if (reason === 'input') setOpen(Boolean(v && v.length));
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Search Scheme Name" variant="outlined" fullWidth InputLabelProps={{ style: { color: '#b0b8c1' } }} onKeyDown={handleEnterSelect} inputRef={inputRef} />
-            )}
-            onChange={(_, value) => { setSelected(value); setInputValue(value ? value.schemeName : ""); setOpen(false); }}
-            isOptionEqualToValue={(opt, val) => opt.schemeId === val.schemeId}
-            sx={{ mb: 2, bgcolor: "#232837", borderRadius: 2, boxShadow: 2 }}
-            popupIcon={<ContentCopyIcon sx={{ color: '#90caf9' }} />}
+          <TextField
+            label="Search Scheme Name"
+            variant="outlined"
+            fullWidth
+            value={inputValue}
+            inputRef={inputRef}
+            onFocus={() => setShowSuggestions(Boolean(filtered.length))}
+            onChange={e => { setInputValue(e.target.value); setSelected(null); }}
+            onKeyDown={handleInputKeyDown}
+            InputLabelProps={{ style: { color: '#b0b8c1' } }}
+            sx={{ mb: 1.5 }}
           />
+          <AnimatePresence>
+            {showSuggestions && (
+              <motion.div
+                ref={suggestionsRef}
+                initial={{ opacity:0, y:-4 }}
+                animate={{ opacity:1, y:0 }}
+                exit={{ opacity:0, y:-4 }}
+                style={{ position:'absolute', top: 122, left: 24, right: 24, zIndex: 10 }}
+              >
+                <Paper sx={{ maxHeight: 260, overflowY:'auto', background:'#1f2430', border:'1px solid #2d3444' }}>
+                  {filtered.slice(0, 30).map((s, idx) => (
+                    <Box
+                      key={s.schemeId}
+                      onMouseDown={e => { e.preventDefault(); }}
+                      onClick={() => { setSelected(s); setShowSuggestions(false); inputRef.current?.blur(); }}
+                      sx={{
+                        px: 1.4, py: 1,
+                        cursor:'pointer',
+                        fontSize:14,
+                        display:'flex',
+                        alignItems:'center',
+                        gap:1,
+                        borderBottom: idx === filtered.length-1 ? 'none':'1px solid #2d3444',
+                        background: idx===0 ? 'linear-gradient(90deg,#2a3141,#232837)' : 'transparent',
+                        '&:hover': { background:'#2a3141' }
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ flex:1 }}>{s.schemeName}</Typography>
+                      <Chip size="small" label={s.block} sx={{ bgcolor:'#2f3a4e', color:'#90caf9' }} />
+                    </Box>
+                  ))}
+                  {!filtered.length && (
+                    <Box px={1.5} py={1}>
+                      <Typography variant="caption" sx={{ color:'#647082' }}>No matches</Typography>
+                    </Box>
+                  )}
+                </Paper>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {selected && (
-            <Box mt={2}>
-              <InfoRow label="Scheme Name" value={selected.schemeName} setSnackbar={setSnackbar} />
-              <InfoRow label="Block" value={selected.block} setSnackbar={setSnackbar} />
-              <InfoRow label="Scheme ID" value={selected.schemeId} setSnackbar={setSnackbar} />
-              <InfoRow label="LOA Number" value={selected.loa} setSnackbar={setSnackbar} />
-              <InfoRow label="JE Name" value={selected.je} setSnackbar={setSnackbar} />
-              <InfoRow label="Date" value={getDateFromLoa(selected.loa)} setSnackbar={setSnackbar} />
+            <Box mt={2.5}>
+              {rows.map((r, idx) => (
+                <InfoRow
+                  key={r.key}
+                  label={r.label}
+                  value={r.value}
+                  shortcut={r.shortcut}
+                  active={rowFocusIndex === idx}
+                  copied={lastCopiedKey === r.key}
+                  onCopy={() => handleCopyByKey(r.key)}
+                />
+              ))}
+              <Box mt={2} display="flex" gap={1} flexWrap="wrap" justifyContent="flex-end">
+                <Chip variant="outlined" size="small" label="C = Clear & Focus" sx={{ bgcolor:'#1f2430', color:'#90caf9', borderColor:'#2d3444', fontWeight:600 }} />
+                <Chip variant="outlined" size="small" label="F = Focus Search" sx={{ bgcolor:'#1f2430', color:'#90caf9', borderColor:'#2d3444', fontWeight:600 }} />
+              </Box>
             </Box>
           )}
         </Paper>
-        <Snackbar
-          open={snackbar}
-          autoHideDuration={1500}
-          onClose={() => setSnackbar(false)}
-          message="Copied!"
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          ContentProps={{ sx: { bgcolor: '#232837', color: '#90caf9', fontWeight: 700, fontSize: 18 } }}
-        />
       </Box>
     </ThemeProvider>
   );
 }
-
-
-function InfoRow({ label, value, setSnackbar }) {
+function InfoRow({ label, value, shortcut, onCopy, copied, active }) {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        bgcolor: "#232837",
-        borderRadius: 2,
-        px: 2,
-        py: 1.2,
-        mb: 1.2,
-        boxShadow: 2,
-        border: '1px solid #232837',
-        transition: 'background 0.2s',
-        '&:hover': { bgcolor: '#282c38' },
+    <motion.div
+      layout
+      initial={false}
+      animate={{
+        backgroundColor: copied ? '#2f3a4e' : active ? '#2a3141' : '#232837',
+        scale: copied ? 1.01 : 1,
       }}
+      transition={{ type:'spring', stiffness: 260, damping: 24 }}
+      style={{
+        borderRadius: 12,
+        marginBottom: 12,
+        border: '1px solid #2d3444',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+        display:'flex',
+        alignItems:'center',
+        padding: '14px 16px',
+        justifyContent:'space-between',
+        cursor:'pointer'
+      }}
+      onClick={onCopy}
     >
-      <Typography variant="body2" fontWeight={700} color="primary.main" sx={{ letterSpacing: 1 }}>
-        {label}
-      </Typography>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography variant="body2" sx={{ mr: 1, wordBreak: "break-all", color: '#b0b8c1', fontWeight: 600 }}>
+      <Box sx={{ display:'flex', alignItems:'center', gap:1.2 }}>
+        <Chip label={shortcut} size="small" sx={{ bgcolor:'#1f2430', color:'#90caf9', fontWeight:700 }} />
+        <Typography variant="body2" fontWeight={700} color="primary.main" sx={{ letterSpacing: 1 }}>
+          {label}
+        </Typography>
+      </Box>
+      <Box sx={{ display:'flex', alignItems:'center', gap:1 }}>
+        <Typography variant="body2" sx={{ wordBreak:'break-all', color:'#b0b8c1', fontWeight:600, maxWidth:280 }}>
           {value}
         </Typography>
-        <IconButton size="small" onClick={() => copyToClipboard(value, setSnackbar)} sx={{ color: '#90caf9' }}>
+        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onCopy(); }} sx={{ color: copied ? '#fff' : '#90caf9', background: copied ? '#394456' : 'transparent', '&:hover': { background:'#2f3a4e' } }}>
           <ContentCopyIcon fontSize="small" />
         </IconButton>
       </Box>
-    </Box>
+    </motion.div>
   );
 }
